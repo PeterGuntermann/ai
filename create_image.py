@@ -10,6 +10,12 @@ import os
 from openai import OpenAI
 import requests
 import sys
+from datetime import datetime
+
+
+def create_folder(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 _, prompt = sys.argv
@@ -35,11 +41,18 @@ print(url)
 
 # Download
 img_data = requests.get(url)
-content = img_data.content
 img_name = prompt
 
-if not os.path.exists("output"):
-    os.makedirs("output")
+timestamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
+folder = f"output/{timestamp}-generated-image"
+create_folder(folder)
 
-with open(f"output/{img_name}.png", "wb") as handler:
-    handler.write(content)
+with open(f"{folder}/{img_name}.png", "wb") as handler:
+    handler.write(img_data.content)
+
+with open(f"{folder}/prompt.txt", "w") as handler:
+    handler.write("URL:\n")
+    handler.write(url)
+    handler.write("\n\n")
+    handler.write("REVISED PROMPT:\n")
+    handler.write(revised_prompt)
